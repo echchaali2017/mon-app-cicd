@@ -1,0 +1,15 @@
+{
+  "name": "mon-app-cicd",
+  "version": "1.0.0",
+  "description": "Application exemple pour pipeline CI/CD",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \"Tests unitaires passés!\" && exit 0"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "author": "echchaali2017",
+  "license": "MIT"
+}

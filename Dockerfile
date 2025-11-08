@@ -18,6 +18,9 @@ COPY --chown=nextjs:nodejs . .
 
 USER nextjs
 
+# Définir l'environnement comme production
+ENV NODE_ENV=production
+
 EXPOSE 3000
 
 CMD ["npm", "start"]

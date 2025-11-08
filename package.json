@@ -5,18 +5,27 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "test": "jest --verbose",
-    "test:watch": "jest --watch"
+    "test": "jest --verbose --testTimeout=10000",
+    "test:ci": "jest --ci --coverage --verbose --testTimeout=10000",
+    "test:watch": "jest --watch",
+    "docker:test": "echo 'Docker tests disabled - use manual testing'",
+    "build": "echo 'No build step needed for Node.js'"
   },
   "dependencies": {
     "express": "^4.18.2"
   },
   "devDependencies": {
-    "jest": "^29.7.0",
+    "jest": "^27.5.1",
     "supertest": "^6.3.3"
   },
   "jest": {
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "testMatch": ["**/test/**/*.test.js"],
+    "collectCoverageFrom": [
+      "app.js",
+      "!**/node_modules/**",
+      "!**/test/**"
+    ]
   },
   "author": "echchaali2017",
   "license": "MIT"

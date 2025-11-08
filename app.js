@@ -20,8 +20,13 @@ app.get('/health', (req, res) => {
   });
 });
 
-app.listen(PORT, HOST, () => {
-  console.log(`✅ Serveur démarré sur ${HOST}:${PORT}`);
-  console.log(`📡 URL: http://localhost:${PORT}`);
-  console.log(`🌐 URL réseau: http://192.168.1.99:${PORT}`);
-});
+// Export pour les tests
+if (require.main === module) {
+  app.listen(PORT, HOST, () => {
+    console.log(`✅ Serveur démarré sur ${HOST}:${PORT}`);
+    console.log(`📡 URL: http://localhost:${PORT}`);
+    console.log(`🌐 URL réseau: http://192.168.1.99:${PORT}`);
+  });
+}
+
+module.exports = app;

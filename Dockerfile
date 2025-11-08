@@ -1,20 +1,23 @@
-# Utilise une image de base officielle Node.js
-FROM node:18-alpine
+# Build stage
+FROM node:18-alpine AS builder
+WORKDIR /usr/src/app
+COPY package*.json ./
+RUN npm ci --only=production
 
-# Définit le répertoire de travail dans le conteneur
+# Production stage
+FROM node:18-alpine AS production
 WORKDIR /usr/src/app
 
-# Copie les fichiers de définition des dépendances
-COPY package*.json ./
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nextjs -u 1001
 
-# Installe les dépendances
-RUN npm install --production
+# Copy from builder
+COPY --from=builder --chown=nextjs:nodejs /usr/src/app/node_modules ./node_modules
+COPY --chown=nextjs:nodejs . .
 
-# Copie le code source de l'application
-COPY . .
+USER nextjs
 
-# Expose le port sur lequel l'application écoute
 EXPOSE 3000
 
-# Commande pour démarrer l'application
 CMD ["npm", "start"]

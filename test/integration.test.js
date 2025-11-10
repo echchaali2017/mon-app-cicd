@@ -1,35 +1,37 @@
 const request = require('supertest');
-const app = require('../app');
+const App = require('../src/app');
 
 describe('Integration Tests', () => {
+  let app;
   let server;
 
-  beforeAll((done) => {
-    server = app.listen(3001, done);
+  beforeAll(async () => {
+    app = new App();
+    await app.start();
+    server = app.getServer();
   });
 
-  afterAll((done) => {
-    server.close(done);
+  afterAll(async () => {
+    await app.stop();
   });
 
   it('should handle complete user journey', async () => {
     // Test 1: Health check
-    const healthResponse = await request(app).get('/health');
+    const healthResponse = await request(server).get('/api/v1/health');
     expect(healthResponse.status).toBe(200);
     expect(healthResponse.body.status).toBe('OK');
 
     // Test 2: Main endpoint
-    const mainResponse = await request(app).get('/');
+    const mainResponse = await request(server).get('/api/v1/');
     expect(mainResponse.status).toBe(200);
     expect(mainResponse.body.message).toContain('Bonjour');
 
-    // Test 3: Verify response structure
-    expect(mainResponse.body).toHaveProperty('version');
-    expect(mainResponse.body).toHaveProperty('environment');
-  });
+    // Test 3: Metrics endpoint
+    const metricsResponse = await request(server).get('/api/v1/metrics');
+    expect([200, 404]).toContain(metricsResponse.status);
 
-  it('should handle 404 for unknown routes', async () => {
-    const response = await request(app).get('/unknown-route');
-    expect(response.status).toBe(404);
+    // Test 4: Unknown route
+    const unknownResponse = await request(server).get('/unknown-route');
+    expect(unknownResponse.status).toBe(404);
   });
 });

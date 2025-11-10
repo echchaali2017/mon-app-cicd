@@ -1,22 +1,29 @@
 {
   "name": "mon-app-cicd",
-  "version": "1.0.0",
-  "description": "Application exemple pour pipeline CI/CD",
+  "version": "2.0.0",
+  "description": "Application Node.js professionnelle avec pipeline CI/CD",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
+    "dev": "node app.js",
     "test": "jest --verbose --testTimeout=10000",
     "test:ci": "jest --ci --coverage --verbose --testTimeout=10000",
     "test:watch": "jest --watch",
-    "docker:test": "echo 'Docker tests disabled - use manual testing'",
-    "build": "echo 'No build step needed for Node.js'"
+    "lint": "eslint . --ext .js",
+    "lint:fix": "eslint . --ext .js --fix",
+    "docker:build": "docker build -t mon-app-cicd .",
+    "docker:test": "echo 'Docker test manual'"
   },
   "dependencies": {
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "helmet": "^5.1.1",
+    "cors": "^2.8.5",
+    "express-rate-limit": "^6.7.1"
   },
   "devDependencies": {
     "jest": "^27.5.1",
-    "supertest": "^6.3.3"
+    "supertest": "^6.3.3",
+    "eslint": "^8.56.0"
   },
   "jest": {
     "testEnvironment": "node",
@@ -25,7 +32,18 @@
       "app.js",
       "!**/node_modules/**",
       "!**/test/**"
-    ]
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 70,
+        "functions": 70,
+        "lines": 70,
+        "statements": 70
+      }
+    }
+  },
+  "engines": {
+    "node": ">=12.0.0"
   },
   "author": "echchaali2017",
   "license": "MIT"

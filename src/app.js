@@ -1,8 +1,8 @@
 const express = require('express');
-const helmet = require('helmet');
 const cors = require('cors');
+const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const config = require('../config/app.config');
+const config = require('./config/config');
 const logger = require('./middleware/logger');
 const errorHandler = require('./middleware/errorHandler');
 const healthRoutes = require('./routes/healthRoutes');
@@ -11,80 +11,124 @@ const appRoutes = require('./routes/appRoutes');
 class App {
   constructor() {
     this.app = express();
+    this.server = null;
     this.setupMiddleware();
     this.setupRoutes();
-    this.setupErrorHandling();
   }
 
   setupMiddleware() {
-    // Sécurité
+    // Security middleware
     this.app.use(helmet());
     this.app.use(cors());
     
     // Rate limiting
-    const limiter = rateLimit(config.api.rateLimit);
+    const limiter = rateLimit({
+      windowMs: 15 * 60 * 1000, // 15 minutes
+      max: 100 // limit each IP to 100 requests per windowMs
+    });
     this.app.use(limiter);
-    
-    // Logging
-    this.app.use(logger);
-    
+
     // Body parsing
-    this.app.use(express.json({ limit: '10mb' }));
+    this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
+
+    // Logging middleware
+    this.app.use((req, res, next) => {
+      const timestamp = new Date().toISOString();
+      if (process.env.NODE_ENV !== 'test') {
+        console.log(`${timestamp} - ${req.method} ${req.url} - IP: ${req.ip}`);
+      }
+      next();
+    });
+
+    // Custom logger
+    this.app.use(logger);
   }
 
   setupRoutes() {
-    // Routes API
+    // API routes
+    this.app.use(config.api.prefix, appRoutes);
     this.app.use(`${config.api.prefix}/health`, healthRoutes);
-    this.app.use(`${config.api.prefix}`, appRoutes);
-    
-    // Route racine
+
+    // Root redirect to API
     this.app.get('/', (req, res) => {
-      res.redirect(`${config.api.prefix}`);
+      res.redirect(config.api.prefix);
     });
 
-    // Gestion des routes non trouvées
+    // 404 handler
     this.app.use('*', (req, res) => {
       res.status(404).json({
-        error: {
-          message: 'Route non trouvée',
-          status: 404,
-          path: req.originalUrl
-        }
+        error: 'Route not found',
+        message: `The route ${req.originalUrl} does not exist`,
+        availableRoutes: [
+          `${config.api.prefix}/`,
+          `${config.api.prefix}/health`,
+          `${config.api.prefix}/metrics`,
+          `${config.api.prefix}/status`
+        ]
       });
     });
-  }
 
-  setupErrorHandling() {
+    // Error handler (must be last)
     this.app.use(errorHandler);
   }
 
   start() {
-    const server = this.app.listen(config.app.port, '0.0.0.0', () => {
-      console.log('🚀 ' + '='.repeat(50));
-      console.log(`✅ ${config.app.name} démarré avec succès!`);
-      console.log(`📡 Environnement: ${config.app.environment}`);
-      console.log(`🌐 URL: http://localhost:${config.app.port}`);
-      console.log(`🔧 API: http://localhost:${config.app.port}${config.api.prefix}`);
-      console.log(`❤️  Health: http://localhost:${config.app.port}${config.api.prefix}/health`);
-      console.log('🚀 ' + '='.repeat(50));
+    this.server = this.app.listen(config.app.port, '0.0.0.0', () => {
+      // Only log in non-test environments
+      if (process.env.NODE_ENV !== 'test') {
+        console.log('🚀 ============================================================');
+        console.log(`✅ ${config.app.name} démarrée avec succès!`);
+        console.log(`📡 Port: ${config.app.port}`);
+        console.log(`🌐 Environnement: ${config.app.environment}`);
+        console.log(`🔧 API: http://localhost:${config.app.port}${config.api.prefix}/`);
+        console.log(`❤️  Health: http://localhost:${config.app.port}${config.api.prefix}/health`);
+        console.log(`📊 Metrics: http://localhost:${config.app.port}${config.api.prefix}/metrics`);
+        console.log('🚀 ============================================================');
+      }
     });
+    return this.server;
+  }
 
-    // Graceful shutdown
-    process.on('SIGTERM', () => {
-      console.log('🛑 Received SIGTERM, shutting down gracefully...');
-      server.close(() => {
-        console.log('✅ Process terminated');
-        process.exit(0);
-      });
+  /**
+   * Get the Express app instance
+   * @returns {Object} Express app
+   */
+  getApp() {
+    return this.app;
+  }
+
+  /**
+   * Get the HTTP server instance
+   * @returns {Object} HTTP server
+   */
+  getServer() {
+    return this.server;
+  }
+
+  /**
+   * Stop the server
+   * @returns {Promise} Promise that resolves when server is closed
+   */
+  stop() {
+    return new Promise((resolve, reject) => {
+      if (this.server) {
+        this.server.close((err) => {
+          if (err) {
+            reject(err);
+          } else {
+            if (process.env.NODE_ENV !== 'test') {
+              console.log('Server stopped successfully');
+            }
+            resolve();
+          }
+        });
+      } else {
+        resolve();
+      }
     });
-
-    return server;
   }
 }
 
 module.exports = App;
-// Test CI/CD DockerHub - Mon Nov 10 07:19:55 PM UTC 2025
-// Test CI/CD DockerHub - Mon Nov 10 07:21:08 PM UTC 2025
-// Relance DockerHub test - Mon Nov 10 07:35:15 PM UTC 2025
-// ✅ Tests corrigés et DockerHub prêt - Mon Nov 10 07:52:37 PM UTC 2025
+// ✅ Tests validés - Prêt pour DockerHub - Tue Nov 11 02:33:26 PM UTC 2025

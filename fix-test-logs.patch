@@ -1,0 +1,30 @@
+--- a/src/app.js
++++ b/src/app.js
+@@ -60,16 +60,18 @@ class App {
+   }
+ 
+   start() {
+-    const server = this.app.listen(config.app.port, '0.0.0.0', () => {
+-      console.log('🚀 ' + '='.repeat(50));
+-      console.log(`✅ ${config.app.name} démarré avec succès!`);
+-      console.log(`📡 Environnement: ${config.app.environment}`);
+-      console.log(`🌐 URL: http://localhost:${config.app.port}`);
+-      console.log(`🔧 API: http://localhost:${config.app.port}${config.api.prefix}`);
+-      console.log(`❤️  Health: http://localhost:${config.app.port}${config.api.prefix}/health`);
+-      console.log('🚀 ' + '='.repeat(50));
+-    });
+-    return server;
++    this.server = this.app.listen(config.app.port, '0.0.0.0', () => {
++      // Only log in non-test environments
++      if (process.env.NODE_ENV !== 'test') {
++        console.log('🚀 ' + '='.repeat(50));
++        console.log(`✅ ${config.app.name} démarré avec succès!`);
++        console.log(`📡 Environnement: ${config.app.environment}`);
++        console.log(`🌐 URL: http://localhost:${config.app.port}`);
++        console.log(`🔧 API: http://localhost:${config.app.port}${config.api.prefix}`);
++        console.log(`❤️  Health: http://localhost:${config.app.port}${config.api.prefix}/health`);
++        console.log('🚀 ' + '='.repeat(50));
++      }
++    });
++    return this.server;
+   }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1762804324978" clover="3.2.0">
-  <project timestamp="1762804324979" name="All files">
+<coverage generated="1762806115886" clover="3.2.0">
+  <project timestamp="1762806115886" name="All files">
     <metrics statements="53" coveredstatements="43" conditionals="12" coveredconditionals="8" methods="14" coveredmethods="9" elements="79" coveredelements="60" complexity="0" loc="53" ncloc="53" packages="1" files="1" classes="1"/>
     <file name="app.js" path="/home/adminuser/mon-app-cicd/app.js">
       <metrics statements="53" coveredstatements="43" conditionals="12" coveredconditionals="8" methods="14" coveredmethods="9"/>

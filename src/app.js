@@ -132,3 +132,5 @@ class App {
 
 module.exports = App;
 // ✅ Tests validés - Prêt pour DockerHub - Tue Nov 11 02:33:26 PM UTC 2025
+// 🐳 DockerHub intégré: echchaali2017/mon-app-cicd
+// 🚀 Test pipeline CI/CD complète - Tue Nov 11 02:46:00 PM UTC 2025

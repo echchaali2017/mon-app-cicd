@@ -1,0 +1,16 @@
+nohup: ignoring input
+
+> mon-app-cicd@2.0.0 start
+> node app.js
+
+🚀 ============================================================
+✅ Mon App CI/CD Pro v2.0.0 démarrée avec succès!
+📡 Port: 3000
+🌐 Environnement: development
+🔧 API: http://localhost:3000/api/v1/
+❤️  Health: http://localhost:3000/api/v1/health
+📊 Metrics: http://localhost:3000/api/v1/metrics
+🚀 ============================================================
+2025-11-11T18:19:09.208Z - GET /api/v1/users - IP: 192.168.1.99
+🛑 Received SIGTERM, shutting down gracefully...
+✅ Process terminated gracefully

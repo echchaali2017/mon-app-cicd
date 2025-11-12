@@ -1,0 +1,18 @@
+--- a/src/app.js
++++ b/src/app.js
+@@ -8,6 +8,7 @@
+ const logger = require('./middleware/logger');
+ const errorHandler = require('./middleware/errorHandler');
+ const healthRoutes = require('./routes/healthRoutes');
++const userRoutes = require('./routes/userRoutes');
+ const appRoutes = require('./routes/appRoutes');
+ 
+ class App {
+@@ -44,6 +45,7 @@ class App {
+   setupRoutes() {
+     // API routes
+     this.app.use(config.api.prefix, appRoutes);
++    this.app.use(config.api.prefix + '/users', userRoutes);
+     this.app.use(config.api.prefix + '/health', healthRoutes);
+ 
+     // Root redirect to API

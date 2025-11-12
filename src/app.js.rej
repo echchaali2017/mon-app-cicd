@@ -1,0 +1,10 @@
+--- src/app.js
++++ src/app.js
+@@ -45,6 +46,7 @@ class App {
+   setupRoutes() {
+     // API routes
+     this.app.use(config.api.prefix, appRoutes);
++    this.app.use(config.api.prefix + '/users', userRoutes);
+     this.app.use(config.api.prefix + '/health', healthRoutes);
+ 
+     // Root redirect to API

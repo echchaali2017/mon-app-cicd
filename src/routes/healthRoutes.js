@@ -50,3 +50,13 @@ router.get('/metrics', (req, res) => {
 });
 
 module.exports = router;
+
+// Ready endpoint for CI/CD
+router.get('/ready', (req, res) => {
+  res.status(200).json({
+    status: 'READY',
+    timestamp: new Date().toISOString(),
+    service: 'Mon App CI/CD',
+    message: 'Service is ready to handle requests'
+  });
+});

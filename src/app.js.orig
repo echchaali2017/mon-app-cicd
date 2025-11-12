@@ -1,0 +1,139 @@
+const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const config = require('./config/config');
+const logger = require('./middleware/logger');
+const errorHandler = require('./middleware/errorHandler');
+const healthRoutes = require('./routes/healthRoutes');
+const appRoutes = require('./routes/appRoutes');
+
+class App {
+  constructor() {
+    this.app = express();
+    this.server = null;
+    this.setupMiddleware();
+    this.setupRoutes();
+  }
+
+  setupMiddleware() {
+    // Security middleware
+    this.app.use(helmet());
+    this.app.use(cors());
+    
+    // Rate limiting
+    const limiter = rateLimit({
+      windowMs: 15 * 60 * 1000, // 15 minutes
+      max: 100 // limit each IP to 100 requests per windowMs
+    });
+    this.app.use(limiter);
+
+    // Body parsing
+    this.app.use(express.json());
+    this.app.use(express.urlencoded({ extended: true }));
+
+    // Logging middleware
+    this.app.use((req, res, next) => {
+      const timestamp = new Date().toISOString();
+      if (process.env.NODE_ENV !== 'test') {
+        console.log(`${timestamp} - ${req.method} ${req.url} - IP: ${req.ip}`);
+      }
+      next();
+    });
+
+    // Custom logger
+    this.app.use(logger);
+  }
+
+  setupRoutes() {
+    // API routes
+    this.app.use(config.api.prefix, appRoutes);
+    this.app.use(`${config.api.prefix}/health`, healthRoutes);
+
+    // Root redirect to API
+    this.app.get('/', (req, res) => {
+      res.redirect(config.api.prefix);
+    });
+
+    // 404 handler
+    this.app.use('*', (req, res) => {
+      res.status(404).json({
+        error: 'Route not found',
+        message: `The route ${req.originalUrl} does not exist`,
+        availableRoutes: [
+          `${config.api.prefix}/`,
+          `${config.api.prefix}/health`,
+          `${config.api.prefix}/metrics`,
+          `${config.api.prefix}/status`
+        ]
+      });
+    });
+
+    // Error handler (must be last)
+    this.app.use(errorHandler);
+  }
+
+  start() {
+    this.server = this.app.listen(config.app.port, '0.0.0.0', () => {
+      // Only log in non-test environments
+      if (process.env.NODE_ENV !== 'test') {
+        console.log('🚀 ============================================================');
+        console.log(`✅ ${config.app.name} démarrée avec succès!`);
+        console.log(`📡 Port: ${config.app.port}`);
+        console.log(`🌐 Environnement: ${config.app.environment}`);
+        console.log(`🔧 API: http://0.0.0.0:${config.app.port}${config.api.prefix}/`);
+        console.log(`❤️  Health: http://0.0.0.0:${config.app.port}${config.api.prefix}/health`);
+        console.log(`📊 Metrics: http://0.0.0.0:${config.app.port}${config.api.prefix}/metrics`);
+        console.log('🚀 ============================================================');
+      }
+    });
+    return this.server;
+  }
+
+  /**
+   * Get the Express app instance
+   * @returns {Object} Express app
+   */
+  getApp() {
+    return this.app;
+  }
+
+  /**
+   * Get the HTTP server instance
+   * @returns {Object} HTTP server
+   */
+  getServer() {
+    return this.server;
+  }
+
+  /**
+   * Stop the server
+   * @returns {Promise} Promise that resolves when server is closed
+   */
+  stop() {
+    return new Promise((resolve, reject) => {
+      if (this.server) {
+        this.server.close((err) => {
+          if (err) {
+            reject(err);
+          } else {
+            if (process.env.NODE_ENV !== 'test') {
+              console.log('Server stopped successfully');
+            }
+            resolve();
+          }
+        });
+      } else {
+        resolve();
+      }
+    });
+  }
+}
+
+module.exports = App;
+// ✅ Tests validés - Prêt pour DockerHub - Tue Nov 11 02:33:26 PM UTC 2025
+// 🐳 DockerHub intégré: echchaali2017/mon-app-cicd
+// 🚀 Test pipeline CI/CD complète - Tue Nov 11 02:46:00 PM UTC 2025
+// Ajout des routes utilisateurs
+const userRoutes = require('./routes/userRoutes');
+this.app.use('/api/v1/users', userRoutes);

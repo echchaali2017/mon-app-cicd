@@ -1,0 +1,22 @@
+--- a/src/app.js
++++ b/src/app.js
+@@ -XX,XX +XX,XX @@ class App {
+ 
+   start() {
+-    this.server = this.app.listen(config.app.port, 'localhost', () => {
++    this.server = this.app.listen(config.app.port, '0.0.0.0', () => {
+       // Only log in non-test environments
+       if (process.env.NODE_ENV !== 'test') {
+         console.log('🚀 ============================================================');
+         console.log(`✅ ${config.app.name} démarrée avec succès!`);
+         console.log(`📡 Port: ${config.app.port}`);
+         console.log(`🌐 Environnement: ${config.app.environment}`);
+-        console.log(`🔧 API: http://localhost:${config.app.port}${config.api.prefix}/`);
+-        console.log(`❤️  Health: http://localhost:${config.app.port}${config.api.prefix}/health`);
+-        console.log(`📊 Metrics: http://localhost:${config.app.port}${config.api.prefix}/metrics`);
++        console.log(`🔧 API: http://0.0.0.0:${config.app.port}${config.api.prefix}/`);
++        console.log(`❤️  Health: http://0.0.0.0:${config.app.port}${config.api.prefix}/health`);
++        console.log(`📊 Metrics: http://0.0.0.0:${config.app.port}${config.api.prefix}/metrics`);
+         console.log('🚀 ============================================================');
+       }
+     });

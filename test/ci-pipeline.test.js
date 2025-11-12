@@ -10,11 +10,12 @@ describe('CI Pipeline Tests - No Database', () => {
     app = new App();
     
     // Mock de la connexion DB pour éviter les timeouts
-    jest.spyOn(require('../src/config/database'), 'connect').mockImplementation(() => Promise.resolve());
-    jest.spyOn(require('../src/config/database'), 'disconnect').mockImplementation(() => Promise.resolve());
+    const database = require('../src/config/database');
+    jest.spyOn(database.db, 'connect').mockImplementation(() => Promise.resolve());
+    jest.spyOn(database.db, 'disconnect').mockImplementation(() => Promise.resolve());
     
     server = await app.start();
-  }, 30000); // Timeout augmenté à 30s
+  }, 30000);
 
   afterAll(async () => {
     // Nettoyage
